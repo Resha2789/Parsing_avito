@@ -28,33 +28,47 @@ class ParsingUslugio(DriverChrome.Execute):
         try:
             while not self.stop_parsing:
 
-                # Отображаем всех клиентов
-                while self.execute_js(rt=True, t=2, data='show_more()') > 0:
+                show_more = 10
+                while show_more > 0:
+                    # Отображаем всех клиентов
+                    show_more = self.execute_js(rt=True, t=2, exit_loop=True, data='show_more()')
+                    # Проверяем выполнился ли скрипт
+                    if show_more == 'not execute':
+                        return self.up_date()  # Перезагружаем страницу
                     time.sleep(1)
 
                 # Количество клиентов
-                items = self.execute_js(rt=True, t=1, data='count_items()')
+                items = self.execute_js(rt=True, t=1, exit_loop=True, data='count_items()')
+                # Проверяем выполнился ли скрипт
+                if items == 'not execute':
+                    return self.up_date()  # Перезагружаем страницу
 
                 if m.uslugio_index_item == 0:
                     print(f"Найдено: {items}")
                 else:
                     print(f"Осталось: {items - (m.uslugio_index_item + 1)}")
 
-                counter = 0
                 for i in range(m.uslugio_index_item, items):
 
                     # Показываем клиента
-                    if self.execute_js(sl=2, rt=True, t=2, data=f"open_item({i})"):
-
+                    open_item = self.execute_js(sl=2, rt=True, t=2, exit_loop=True, data=f"open_item({i})")
+                    # Проверяем выполнился ли скрипт
+                    if open_item == 'not execute':
+                        return self.up_date()  # Перезагружаем страницу
+                    if open_item:
                         # Номер телефона
-                        phone = self.execute_js(tr=10, sl=1, rt=True, t=2, data=f"get_phone()")
-                        if phone == False:
+                        phone = self.execute_js(tr=10, sl=1, rt=True, t=2, exit_loop=True, data=f"get_phone()")
+                        # Проверяем выполнился ли скрипт или если вернул False
+                        if 'not execute' == phone or not phone or 'error' == phone:
                             m.uslugio_index_item = i
                             return self.up_date()
                         m.out_phone_number.append(phone)
 
                         # Имя
-                        name = self.execute_js(tr=2, sl=0, rt=True, t=2, data=f"name()")
+                        name = self.execute_js(tr=2, sl=0, rt=True, t=2, exit_loop=True, data=f"name()")
+                        # Проверяем выполнился ли скрипт
+                        if name == 'not execute':
+                            return self.up_date()  # Перезагружаем страницу
                         m.out_full_name.append(name)
 
                         # Город
@@ -79,12 +93,6 @@ class ParsingUslugio(DriverChrome.Execute):
                                 print(f"Спарсено {len(m.out_phone_number)}")
                                 show_data = False
                             time.sleep(1)
-
-                        # if i > self.total or phone == 'error':
-                        #     self.total += 3
-                        if phone == 'error':
-                            m.uslugio_index_item = i
-                            return self.up_date()
 
                     # Посылаем сигнал на главное окно в прогресс бар uslugio
                     m.Commun.uslugio_progressBar.emit({'i': i, 'items': items})
@@ -119,11 +127,11 @@ class ParsingUslugio(DriverChrome.Execute):
 
             # Запус WebDriverChrome
             if not self.star_driver(url=u.url):
-                print(f"false star_driver")
+                print(f"False star_driver")
                 return
             # Устанавливаем на вебсайт скрипты
-            if not self.set_library(url=u.url):
-                print(f"false set_library")
+            if not self.set_library():
+                print(f"False set_library")
                 return
 
             # Запускаем цикл парсинга uslugio
