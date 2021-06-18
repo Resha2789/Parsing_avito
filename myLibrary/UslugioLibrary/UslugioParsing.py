@@ -1,6 +1,7 @@
 from myLibrary.UslugioLibrary.UslugioParsingLib import ParsingUslugio
 from PyQt5.QtCore import QThread
 from myLibrary import DriverChrome, MainWindow
+import threading
 
 
 class UslugioThreading(QThread, ParsingUslugio):
@@ -15,8 +16,10 @@ class UslugioThreading(QThread, ParsingUslugio):
         m: MainWindow.MainWindow
         m = self.mainWindow
 
+        threading.Thread(target=self.tim_out_thread).start()
+
         for i in m.inp_key_words:
-            if self.stop_parsing:
+            if self.stop_parsing or not m.parsing_uslugio:
                 break
 
             self.key_word = i
@@ -29,8 +32,6 @@ class UslugioThreading(QThread, ParsingUslugio):
             # Устанавливаем на вебсайт скрипты
             if not self.set_library():
                 return
+
             # Запускаем цикл парсинга uslugio
             self.start_parsing_uslugio()
-            print(f"Итерация {i}")
-            # Завершаем программу
-            # self.close()
