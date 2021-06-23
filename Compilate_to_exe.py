@@ -3,12 +3,12 @@ import shutil
 import os
 import sys
 
-def install(sistem=64):
-    folder = 'Parsing_uslugio_ru_64bit'
+def install(sistem=64, name='Сборщик_телефонов_64bit'):
+    folder = 'Сборщик_данных_uslugio_64bit'
     if sistem == 32:
-        folder = 'Parsing_uslugio_ru_62bit'
+        folder = 'Сборщик_данных_uslugio_32bit'
 
-    src_data = f"D:\Programming\Python\{folder}\Все для сборщика данных"
+    src_data = f"D:\Programming\Python\Parsing_uslugio_ru_64bit\Все для сборщика данных"
     dst_data = f"D:\Фриланс\Авито\{folder}\Все для сборщика данных"
     try:
         shutil.rmtree(dst_data)
@@ -21,10 +21,10 @@ def install(sistem=64):
         "Main.py",
         "--noconsole",
         "--onefile",
-        f"--icon=D:/Programming/Python/{folder}/""Все для сборщика данных/icon_phone.ico",
+        f"--icon=D:/Programming/Python/Parsing_uslugio_ru_64bit/""Все для сборщика данных/icon_phone.ico",
         f"--distpath=D:/Фриланс/Авито/{folder}/",
-        "-n=Сборщик_телефонов_64bit"
+        f"-n={name}"
     ])
 
 if __name__ == '__main__':
-    install(sistem=64)
+    install(sistem=32, name='Сборщик_телефонов_32bit')

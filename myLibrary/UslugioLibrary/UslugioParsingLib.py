@@ -63,14 +63,21 @@ class ParsingUslugio(DriverChrome.Execute):
                                     continue
                                 return self.up_date()  # Перезагружаем страницу
 
+                            if not m.proxy_server_installed:
+                                self.set_proxy(proxy=True, change=False)
 
-                            self.set_proxy(proxy=True, change=False)
+                            # Прокси сервер установлен
+                            m.proxy_server_installed = True
 
                             if open_item:
                                 # Номер телефона
                                 phone = self.execute_js(tr=20, sl=3, rt=True, t=2, exit_loop=False, data=f"get_phone()")
                                 # Проверяем выполнился ли скрипт или если вернул False
                                 if 'not execute' == phone or not phone or 'error' == phone:
+                                    m.proxy_server_installed = False
+                                    if len(m.uslugio_verified_proxies) == 0:
+                                        continue
+
                                     if retry <= 4:
                                         m.uslugio_verified_proxies = m.uslugio_verified_proxies[1:]
                                         m.Commun.uslugio_proxy_update.emit(m.uslugio_verified_proxies)
@@ -93,21 +100,6 @@ class ParsingUslugio(DriverChrome.Execute):
 
                                 m.out_uslugio_all_data.append([m.out_full_name[-1], m.out_service[-1], m.out_phone_number[-1], m.out_key_word[-1],  m.out_city[-1]])
                                 print(f"{len(m.out_service)}. {m.out_full_name[-1]}, {m.out_service[-1]}, {phone}, {m.out_key_word[-1]}")
-
-                                # Стоп парсинг
-                                if self.stop_parsing:
-                                    print(f"Парсинг остановлен {m.inp_website}")
-                                    print(f"Спарсено {len(m.out_phone_number)}")
-                                    break
-
-                                # Парсинг на паузу
-                                show_data = True
-                                while self.pause_parsing:
-                                    if show_data:
-                                        print(f"Парсинг на паузе {m.inp_website}")
-                                        print(f"Спарсено {len(m.out_phone_number)}")
-                                        show_data = False
-                                    time.sleep(1)
 
                             if not m.parsing_uslugio:
                                 return

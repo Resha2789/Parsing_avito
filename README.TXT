@@ -19,7 +19,6 @@ PyQt5-sip	12.9.0	12.9.0
 Unidecode	1.2.0	1.2.0
 altgraph	0.17	0.17
 beautifulsoup4	4.9.3	4.9.3
-bs4	0.0.1	0.0.1
 certifi	2021.5.30	2021.5.30
 chardet	4.0.0	4.0.0
 colorama	0.4.4	0.4.4
@@ -30,7 +29,6 @@ docopt	0.6.2	0.6.2
 et-xmlfile	1.1.0	1.1.0
 future	0.18.2	0.18.2
 idna	2.10	3.2
-keyboard	0.13.5	0.13.5
 lxml	4.6.3	4.6.3
 numpy	1.20.3	1.21.0
 packaging	20.9	20.9
