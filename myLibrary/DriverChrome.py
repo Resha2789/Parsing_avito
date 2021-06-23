@@ -6,11 +6,9 @@ from datetime import datetime, timedelta
 import time
 import os
 import psutil
-import platform
 
 
-# Запуск WebDriverChrome
-# url='', proxy=None, browser=False
+# Запуск webDriverFirefox
 class StartDriver(ProxyCheck.ProxyCheck):
     def __init__(self, mainWindow=None, url='', proxy=None, browser=False):
         super().__init__()
@@ -18,8 +16,6 @@ class StartDriver(ProxyCheck.ProxyCheck):
         m: MainWindow.MainWindow
         m = self.mainWindow
         self.driver_path = 'Все для сборщика данных/geckodriver_64.exe'
-        if platform.architecture()[0] == '32bit':
-            self.driver_path = 'Все для сборщика данных/geckodriver_32.exe'
         self.driver = None
         self.show_browser = browser
         self.driver_closed = False
@@ -27,13 +23,13 @@ class StartDriver(ProxyCheck.ProxyCheck):
         self.total_person = None
         self.time_out = 0
         self.proxy_installed = False
+        self.proc_name = "geckodriver_64.exe"
 
     def kill_geckodriver(self):
         try:
-            PROCNAME = "geckodriver_64.exe"  # or chromedriver or IEDriverServer
             for proc in psutil.process_iter():
                 # check whether the process name matches
-                if proc.name() == PROCNAME:
+                if proc.name() == self.proc_name:
                     proc.kill()
         except Exception as error:
             return
@@ -46,7 +42,9 @@ class StartDriver(ProxyCheck.ProxyCheck):
             return
 
         self.set_url = url
+        m.proxy_server_installed = False
 
+        time.sleep(3)
         try:
             # Запускаем webDriverFirefox
             profile = self.get_profile()[0]
@@ -58,6 +56,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
                                                 service_log_path=os.path.devnull)
                 print(f"DRIVER START {self.set_url}")
             else:
+                self.set_proxy(proxy=False, change=False)
                 self.driver.refresh()
                 print(f"DRIVER REFRESH {self.set_url}")
             self.driver.get(url)
@@ -65,9 +64,13 @@ class StartDriver(ProxyCheck.ProxyCheck):
             print("Заргузка страницы успешна прошла.")
 
         except Exception as detail:
-            # self.driver_closed = False
+            # Если разрядность системы не 64бит то запускаем весрию geckodriver_32
+            if re.search(r'Expected browser binary location', str(detail)) or re.search(r'geckodriver_64', str(detail)):
+                self.driver_path = 'Все для сборщика данных/geckodriver_32.exe'
+                self.proc_name = "geckodriver_32.exe"
+                return self.star_driver(url=self.set_url, proxy=proxy)
+
             print(f"ERROR star_driver: {self.set_url}", detail)
-            print("Перезапускаем star_driver")
             return self.star_driver(url=self.set_url, proxy=proxy)
 
         return True
@@ -91,6 +94,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
                     if m.uslugio_threading.driver is not None:
                         print(f"TIME_OUT_THREAD!")
                         print(f"DRIVER REFRESH {m.uslugio_threading.set_url}")
+                        self.set_proxy(proxy=False, change=False)
                         m.uslugio_threading.driver.refresh()
                 time.sleep(5)
 

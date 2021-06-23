@@ -57,6 +57,9 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
             # Использованные прокси uslugio
             self.uslugio_used_proxies = []
 
+            # Показывает что прокси сервер не установлен
+            self.proxy_server_installed = False
+
             # Прокси сервера на вылет
             self.uslugio_index = 0
 
