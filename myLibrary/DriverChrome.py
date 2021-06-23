@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import time
 import os
 import psutil
+import platform
 
 
 # Запуск WebDriverChrome
@@ -16,8 +17,9 @@ class StartDriver(ProxyCheck.ProxyCheck):
         self.mainWindow = mainWindow
         m: MainWindow.MainWindow
         m = self.mainWindow
-
-        self.driver_path = 'Все для сборщика данных/geckodriver.exe'
+        self.driver_path = 'Все для сборщика данных/geckodriver_64.exe'
+        if platform.architecture()[0] == '32bit':
+            self.driver_path = 'Все для сборщика данных/geckodriver_32.exe'
         self.driver = None
         self.show_browser = browser
         self.driver_closed = False
@@ -28,7 +30,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
 
     def kill_geckodriver(self):
         try:
-            PROCNAME = "geckodriver.exe"  # or chromedriver or IEDriverServer
+            PROCNAME = "geckodriver_64.exe"  # or chromedriver or IEDriverServer
             for proc in psutil.process_iter():
                 # check whether the process name matches
                 if proc.name() == PROCNAME:
@@ -50,7 +52,10 @@ class StartDriver(ProxyCheck.ProxyCheck):
             profile = self.get_profile()[0]
             options = self.get_profile()[1]
             if self.driver is None:
-                self.driver = webdriver.Firefox(executable_path=self.driver_path, firefox_profile=profile, options=options)
+                self.driver = webdriver.Firefox(executable_path=self.driver_path,
+                                                firefox_profile=profile,
+                                                options=options,
+                                                service_log_path=os.path.devnull)
                 print(f"DRIVER START {self.set_url}")
             else:
                 self.driver.refresh()

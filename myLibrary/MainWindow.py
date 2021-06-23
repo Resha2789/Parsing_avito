@@ -69,6 +69,10 @@ class MainWindow(QtWidgets.QMainWindow, Uslugio_avito_parsing.Ui_MainWindow, Log
         self.checkBox_uslugio_auto_input.setChecked(self.inp_auto_get_proxy)
         # Сайт указанный вручную для получения прокси
         self.checkBox_uslugio_manual_input.setChecked(self.inp_manual_get_proxy)
+        # Ссылки на бесплатные прокси сервера
+        self.plainTextEdit_uslugio_console.appendPlainText('Ccылки на бесплатные прокси сервера:\n'
+                                                           'https://awmproxy.com/freeproxy.php\n'
+                                                           'https://advanced.name/ru/freeproxy')
 
     def set_connect(self):
         # СТАРТ парсинга
@@ -157,8 +161,8 @@ class MainWindow(QtWidgets.QMainWindow, Uslugio_avito_parsing.Ui_MainWindow, Log
                 print(f"$В файле не найдены прокси сервера!")
                 return
 
-        if not self.check_time():
-            return
+        # if not self.check_time():
+        #     return
 
         self.parsing_uslugio = True
         self.start_uslugio_find_proxy()
@@ -191,18 +195,18 @@ class MainWindow(QtWidgets.QMainWindow, Uslugio_avito_parsing.Ui_MainWindow, Log
     def append_log(self, text, severity):
         if len(text) > 3:
             if severity == self.Severity.ERROR:
-                self.plainTextEdit_uslugio_console.appendPlainText(text)
-                # if self.parsing_uslugio:
-                #     self.plainTextEdit_uslugio_console.appendPlainText(text)
-                #     self.update_json()
-                # if re.search(r'^[$](.*)', text):
-                #     self.plainTextEdit_uslugio_console.appendPlainText(text)
+                # self.plainTextEdit_uslugio_console.appendPlainText(text)
+                if self.parsing_uslugio:
+                    self.plainTextEdit_uslugio_console.appendPlainText(text)
+                    self.update_json()
+                if re.search(r'^[$](.*)', text):
+                    self.plainTextEdit_uslugio_console.appendPlainText(text)
             else:
-                self.plainTextEdit_uslugio_console.appendPlainText(text)
-                # if self.parsing_uslugio:
-                #     self.plainTextEdit_uslugio_console.appendPlainText(text)
-                # if re.search(r'^[$](.*)', text):
-                #     self.plainTextEdit_uslugio_console.appendPlainText(re.findall(r'^[$](.*)', text)[0])
+                # self.plainTextEdit_uslugio_console.appendPlainText(text)
+                if self.parsing_uslugio:
+                    self.plainTextEdit_uslugio_console.appendPlainText(text)
+                if re.search(r'^[$](.*)', text):
+                    self.plainTextEdit_uslugio_console.appendPlainText(re.findall(r'^[$](.*)', text)[0])
 
     def closeEvent(self, event):
         self.update_json()
