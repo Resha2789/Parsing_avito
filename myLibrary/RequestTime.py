@@ -53,7 +53,7 @@ class RequestTime():
 
     def check_time(self):
         if self.get_network_time():
-            expiration_date = datetime.strptime('26 Июнь 2021 23:00', '%d %B %Y %H:%M')
+            expiration_date = datetime.strptime('30 Июнь 2021 23:00', '%d %B %Y %H:%M')
             # print(self.date_time)
             # print(expiration_date)
 

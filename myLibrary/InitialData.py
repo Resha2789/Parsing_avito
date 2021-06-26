@@ -26,7 +26,7 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
             self.inp_show_browser = self.md['Показывать_браузер']
             self.inp_proxy = self.md['Прокси_сервера']
             self.inp_path_excel_uslugio = self.md['Path_excel_uslugio']
-            self.inp_name_excel_uslugio = self.md['Name_excel_uslugio']
+            self.inp_name_excel_avito = self.md['Name_excel_uslugio']
             self.inp_continuation_uslugio = self.md['Продолжить_файл_uslugio']
             self.inp_rewriting_uslugio = self.md['Перезапись_файла_uslugio']
             self.inp_auto_get_proxy = self.md['Авто_получение_прокси']
@@ -46,7 +46,7 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
                 self.proxy_str += i + '\n'
 
             # Статус парсинга uslugio
-            self.parsing_uslugio = False
+            self.parsing_avito = False
 
             # Найденные прокси сервера
             self.uslugio_proxy_finded = []
@@ -77,7 +77,7 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
         self.md['Показывать_браузер'] = self.inp_show_browser
         self.md['Прокси_сервера'] = []
         self.md['Path_excel_uslugio'] = self.inp_path_excel_uslugio
-        self.md['Name_excel_uslugio'] = self.inp_name_excel_uslugio
+        self.md['Name_excel_uslugio'] = self.inp_name_excel_avito
         self.md['Продолжить_файл_uslugio'] = self.inp_continuation_uslugio
         self.md['Перезапись_файла_uslugio'] = self.inp_rewriting_uslugio
         self.md['Авто_получение_прокси'] = self.inp_auto_get_proxy

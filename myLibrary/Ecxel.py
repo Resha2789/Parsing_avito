@@ -34,7 +34,7 @@ class ExcelWrite:
 
                     # Проверяем наличие открытого файла
                     for i in range(1, self.excel.Application.Workbooks.Count + 1):
-                        if m.inp_name_excel_uslugio == self.excel.Application.Workbooks(i).Name:
+                        if m.inp_name_excel_avito == self.excel.Application.Workbooks(i).Name:
                             self.book = self.excel.Application.Workbooks(i)
                             break
 
@@ -43,7 +43,7 @@ class ExcelWrite:
 
                 self.sheet = self.book.Sheets(1)
                 self.open_excel = True
-                print(f"open_excel {m.inp_name_excel_uslugio}")
+                print(f"open_excel {m.inp_name_excel_avito}")
 
             return True
 
@@ -78,7 +78,7 @@ class ExcelWrite:
 
         except Exception as error:
             print(f"write_to_excel {error}")
-            print(f"Данные не сохранились (что-та пошло не так) {m.inp_name_excel_uslugio}")
+            print(f"Данные не сохранились (что-та пошло не так) {m.inp_name_excel_avito}")
             return False
 
     def read_from_excel(self):
@@ -87,26 +87,27 @@ class ExcelWrite:
 
         try:
             rows = int(self.excel.WorksheetFunction.CountA(self.excel.Columns(1)))
-            data = self.sheet.Range(self.sheet.Cells(1, 1), self.sheet.Cells(rows, 5)).Value
+            data = self.sheet.Range(self.sheet.Cells(1, 1), self.sheet.Cells(rows, 6)).Value
 
             row = 1
             m.out_service = []
-            m.out_uslugio_all_data = []
+            m.out_avito_all_data = []
             for i in data:
-                # m.out_uslugio_all_data.append([m.out_full_name[-1], m.out_service[-1], m.out_phone_number[-1], m.out_key_word[-1],  m.out_city[-1]])
+                # m.out_avito_all_data.append([m.out_full_name[-1], m.out_service[-1], m.out_phone_number[-1], m.out_key_word[-1],  m.out_city[-1]])
                 if i[1] is None:
                     break
 
                 m.out_service.append(i[1])
-                m.out_uslugio_all_data.append([i[0], i[1], i[2], i[3], i[4]])
+                m.out_service.append(i[5])
+                m.out_avito_all_data.append([i[0], i[1], i[2], i[3], i[4], i[5]])
 
-            print(f"Данные загрузились {m.inp_name_excel_uslugio}: {rows} строк")
+            print(f"Данные загрузились {m.inp_name_excel_avito}: {rows} строк")
             self.exit_excel()
             return True
 
         except Exception as error:
             print(f"read_from_excel {error}")
-            print(f"Данные не загрузились (что-та пошло не так) {m.inp_name_excel_uslugio}")
+            print(f"Данные не загрузились (что-та пошло не так) {m.inp_name_excel_avito}")
             return False
 
     def exit_excel(self):

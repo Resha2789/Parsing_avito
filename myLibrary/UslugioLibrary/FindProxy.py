@@ -53,13 +53,13 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
         m = self.mainWindow
 
         try:
-            if not m.parsing_uslugio:
+            if not m.parsing_avito:
                 return
 
             m.uslugio_proxy_finded = open(m.inp_path_manual_proxy).read().split('\n')
 
             for i in m.uslugio_proxy_finded:
-                if not m.parsing_uslugio:
+                if not m.parsing_avito:
                     return
 
                 if self.proxy_check('https://uslugio.com/', i):
@@ -83,7 +83,7 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
         m = self.mainWindow
 
         try:
-            if not m.parsing_uslugio:
+            if not m.parsing_avito:
                 return
 
             # Запус WebDriverChrome
@@ -105,7 +105,7 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
                     return self.manual_input_and_check_proxy()
 
                 for i in m.uslugio_proxy_finded:
-                    if not m.parsing_uslugio:
+                    if not m.parsing_avito:
                         return
 
                     # if self.time_out_proxy is None or datetime.now() > self.time_out_proxy:
@@ -127,7 +127,7 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
 
         except Exception as detail:
             print("ERROR find_and_check_proxy:", detail)
-            if m.parsing_uslugio:
+            if m.parsing_avito:
                 return self.manual_input_and_check_proxy()
             else:
                 return

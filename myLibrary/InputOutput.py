@@ -11,7 +11,7 @@ class IntPut:
     # Прокси сервера
     inp_proxy = []
     # Файл Excel uslugio
-    inp_name_excel_uslugio = ''
+    inp_name_excel_avito = ''
     # Дирриктория файла Excel uslugio
     inp_path_excel_uslugio = ''
     # Продолжить запись в файла
@@ -40,5 +40,7 @@ class OutPut:
     out_service = []
     # Ключевое слово
     out_key_word = []
+    # url клиента
+    out_url = []
     # Все данные
-    out_uslugio_all_data = []
+    out_avito_all_data = []

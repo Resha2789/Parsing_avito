@@ -38,7 +38,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
         m: MainWindow.MainWindow
         m = self.mainWindow
 
-        if not m.parsing_uslugio:
+        if not m.parsing_avito:
             return
 
         self.set_url = url
@@ -80,9 +80,9 @@ class StartDriver(ProxyCheck.ProxyCheck):
         m: MainWindow.MainWindow
         m = self.mainWindow
 
-        while m.parsing_uslugio:
+        while m.parsing_avito:
             try:
-                if not m.parsing_uslugio:
+                if not m.parsing_avito:
                     return
                 if self.total_person != len(m.out_phone_number):
                     self.total_person = len(m.out_phone_number)
@@ -103,7 +103,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
                 print("Перезапускаем tim_out_thread")
                 self.driver = None
 
-                if m.parsing_uslugio:
+                if m.parsing_avito:
                     return self.tim_out_thread()
                 else:
                     return
@@ -118,12 +118,12 @@ class StartDriver(ProxyCheck.ProxyCheck):
         profile.set_preference("general.useragent.override",
                                "Mozilla / 5.0 (Windows NT 10.0; Win64; x64) AppleWebKit / 537.36 (KHTML, как Gecko) Chrome / 80.0.3987.163 Safari / 537.36 OPR / 67.0.3575.137")
 
-        # Disable CSS
-        profile.set_preference('permissions.default.stylesheet', 2)
-        # Disable images
-        profile.set_preference('permissions.default.image', 2)
-        # Disable Flash
-        profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
+        # # Disable CSS
+        # profile.set_preference('permissions.default.stylesheet', 2)
+        # # Disable images
+        # profile.set_preference('permissions.default.image', 2)
+        # # Disable Flash
+        # profile.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
 
         options = webdriver.FirefoxOptions()
 
@@ -143,7 +143,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
         if proxy:
             if change or len(m.uslugio_verified_proxies) == 0:
                 while len(m.uslugio_verified_proxies) == 0:
-                    if not m.parsing_uslugio:
+                    if not m.parsing_avito:
                         return
                     print(f"Ждем прокси...")
                     time.sleep(2)
@@ -188,7 +188,7 @@ class Execute(StartDriver):
         m: MainWindow.MainWindow
         m = self.mainWindow
 
-        if not m.parsing_uslugio:
+        if not m.parsing_avito:
             return
 
         try:
@@ -261,7 +261,7 @@ class Execute(StartDriver):
 
         except Exception as detail:
             print("ERROR set_library:", detail)
-            if m.parsing_uslugio:
+            if m.parsing_avito:
                 return self.star_driver(url=self.set_url)
             else:
                 return
@@ -287,7 +287,7 @@ class Execute(StartDriver):
             # Запускаем javaScript в браузере и получаем результат
             result = self.driver.execute_script(f"return {data}")
         except Exception as detail:
-            if not m.parsing_uslugio:
+            if not m.parsing_avito:
                 return
             print(f"EXCEPT execute_js: {data}")
             print("ERROR:", detail)

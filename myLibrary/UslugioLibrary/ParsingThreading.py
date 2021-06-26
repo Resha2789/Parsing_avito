@@ -1,6 +1,6 @@
 import time
 
-from myLibrary.UslugioLibrary.UslugioParsingLib import ParsingUslugio
+from myLibrary.UslugioLibrary.ParsingLib import ParsingUslugio
 from PyQt5.QtCore import QThread
 from myLibrary import MainWindow, Slug
 import threading
@@ -23,14 +23,14 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
         threading.Thread(target=self.tim_out_thread).start()
 
         for i in m.inp_key_words:
-            if self.stop_parsing or not m.parsing_uslugio:
+            if self.stop_parsing or not m.parsing_avito:
                 break
 
             # Посылаем сигнал на главное окно в textBrowser_uslugio_key_words
             m.Commun.uslugio_change_key_words.emit(i)
 
             self.key_word = i
-            self.url = f"https://uslugio.com/{self.slugify(m.inp_city)}?search={i}"
+            self.url = f"https://www.avito.ru/{self.slugify(m.inp_city)}/predlozheniya_uslug?q={i}"
 
             # Запус WebDriverChrome
             if not self.star_driver(url=self.url, proxy=False):
@@ -41,10 +41,13 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
                 return
 
             # Запускаем цикл парсинга uslugio
-            self.start_parsing_uslugio()
+            self.start_parsing_avito()
 
-        if m.parsing_uslugio:
-            m.uslugio_stop_threading()
+            # Посылаем сигнал на главное окно в прогресс бар avito
+            m.Commun.uslugio_progressBar.emit({'i': 0, 'items': 100})
+
+        if m.parsing_avito:
+            m.avito_stop_threading()
 
         self.working = False
 
@@ -53,12 +56,12 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
         m = self.mainWindow
 
         m.log = False
-        m.parsing_uslugio = False
+        m.parsing_avito = False
         save = False
         total = 0
 
         while True:
-            if not self.working and not m.uslugio_find_proxy_threading.working:
+            if not self.working:
                 # Запись в EXcel
                 if m.write_to_excel():
                     save = True
@@ -67,8 +70,6 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
 
                 if self.driver is not None:
                     self.driver.quit()
-
-                m.uslugio_find_proxy_threading.stop_threading()
 
                 print("Программа завершена")
 
@@ -84,9 +85,9 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
 
         m.log = True
 
-        print(f"$Сбор данных закончили\n$Всего собрано: {len(m.out_uslugio_all_data)}")
+        print(f"$Сбор данных закончили\n$Всего собрано: {len(m.out_avito_all_data)}")
         if save:
-            print(f"$Данные сохранились успешно {m.inp_name_excel_uslugio}")
+            print(f"$Данные сохранились успешно {m.inp_name_excel_avito}")
         else:
             print(f"$Данные не сохранились!")
 
@@ -94,4 +95,3 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
         m.Commun.uslugio_progressBar.emit({'i': 99, 'items': 100})
         m.pushButton_uslugio_start.setEnabled(True)
         m.uslugio_threading = None
-        m.uslugio_find_proxy_threading = None
