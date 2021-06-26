@@ -10,7 +10,7 @@ class TesseractImg:
 
     def image_to_string(self):
         try:
-            img = Image.open(os.path.abspath("Телефон.png"))
+            img = Image.open(os.path.abspath("Все для сборщика данных/Телефон.png"))
             pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
             custom_config = r'--oem 3 --psm 13 -c tessedit_char_whitelist=0123456789'
             text = pytesseract.image_to_string(img, config=custom_config)

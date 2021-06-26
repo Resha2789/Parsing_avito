@@ -58,7 +58,7 @@ class RequestTime():
             # print(expiration_date)
 
             if self.date_time < expiration_date:
-                print(f"$До окончания пробного периода: {expiration_date - self.date_time}")
+                print(f"$<b style='color: rgb(255, 0, 0);'>До окончания пробного периода: {expiration_date - self.date_time}</b>")
                 return True
             else:
                 print(f"$Пробный период закончился!")

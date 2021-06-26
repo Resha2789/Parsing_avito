@@ -115,7 +115,7 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
                             print("Сохранаяем картинку номера телефона")
                             # Сохранаяем картинку номера телефона
-                            with open('Телефон.png', 'wb') as file:
+                            with open('Все для сборщика данных/Телефон.png', 'wb') as file:
                                 file.write(self.driver
                                            .find_element(By.XPATH, '//img[@id="phone_number"]')
                                            .screenshot_as_png)
