@@ -24,6 +24,8 @@ class IntPut:
     inp_manual_get_proxy = False
     # Сайт указанный вручную для получения прокси
     inp_path_manual_proxy = False
+    # Показать все логи
+    inp_show_all_logs = False
 
 
 # Возвращаемые данные

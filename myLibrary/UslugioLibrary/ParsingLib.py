@@ -1,15 +1,9 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 from myLibrary import MainWindow, DriverChrome, TesseractImg
 from myLibrary.UslugioLibrary import ParsingThreading
 import time
-import random
-import re
 
-
-# self, mainWindow=None, proxy=None, browser=False, url='', js=''
-# url=url, proxy=proxy, browser=browser, js=js
 
 class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
     def __init__(self, mainWindow=None, uslugioThreading=None, *args, **kwargs):
@@ -36,7 +30,7 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
         # Всего найдено
         total = self.execute_js(rt=True, t=2, exit_loop=True, data='count_all_items()')
-        print(f"<b style='color: rgb(255, 196, 17);'>По ключевому слову {u.key_word} найдено: {total}</b>")
+        print(f"$<b style='color: rgb(255, 196, 17);'>По ключевому слову {u.key_word} найдено: {total}</b>")
 
         try:
             while True:
@@ -122,6 +116,9 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
                             # Распознаем цифры с картинки
                             phone_number = self.image_to_string()
+                            if type(phone_number) == bool:
+                                m.parsing_avito = False
+                                return False
 
                             # Телефоны
                             m.out_phone_number.append(phone_number)
@@ -150,7 +147,7 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                                  m.out_city[-1],
                                  m.out_url[-1]])
 
-                            print(f"<b style='color: rgb(0, 203, 30);'>"
+                            print(f"$<b style='color: rgb(0, 203, 30);'>"
                                   f"{len(m.out_service)}. "
                                   f"{m.out_full_name[-1]}, "
                                   f"{m.out_service[-1]}, "
@@ -158,22 +155,29 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                                   f"{m.out_key_word[-1]}"
                                   f"</b>")
                             # Посылаем сигнал на главное окно в прогресс бар uslugio
-                            m.Commun.uslugio_progressBar.emit({'i': self.total_found + i, 'items': total})
+                            m.Commun.progressBar.emit({'i': self.total_found + i, 'items': total})
+                            # Активируем кнопку остановки
+                            if not m.webdriver_loaded:
+                                m.Commun.pushButton_uslugio_stop_enabled.emit(True)
 
                             break
                         break
 
                 if self.current_page == self.last_page:
                     # Посылаем сигнал на главное окно в прогресс бар uslugio
-                    m.Commun.uslugio_progressBar.emit({'i': (self.total_found + total_in_page) - 1, 'items': total})
+                    m.Commun.progressBar.emit({'i': (self.total_found + total_in_page) - 1, 'items': total})
                     self.current_page = 1
                     self.total_found = 0
                     return
                 else:
+                    # Активируем кнопку остановки
+                    if not m.webdriver_loaded:
+                        m.Commun.pushButton_uslugio_stop_enabled.emit(True)
+
                     self.main_page()
 
                     self.current_page += 1
-                    print(f"<b style='color: rgb(16, 28, 255);'>Переход на следующию страницу {self.current_page}</b>")
+                    print(f"$<b style='color: rgb(16, 28, 255);'>Переход на следующию страницу {self.current_page}</b>")
                     result = self.execute_js(rt=True, t=2, exit_loop=True, data=f"next_page({self.current_page})")
                     if not result:
                         self.up_date()
@@ -186,7 +190,7 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
                     self.total_found += total_in_page
                     # Посылаем сигнал на главное окно в прогресс бар uslugio
-                    m.Commun.uslugio_progressBar.emit({'i': self.total_found, 'items': total})
+                    m.Commun.progressBar.emit({'i': self.total_found, 'items': total})
 
 
         except Exception as detail:

@@ -32,6 +32,7 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
             self.inp_auto_get_proxy = self.md['Авто_получение_прокси']
             self.inp_manual_get_proxy= self.md['Ручное_получение_прокси']
             self.inp_path_manual_proxy = self.md['Адрес_для_получения_прокси']
+            self.inp_show_all_logs = self.md['Показать_все_логи']
 
             # Ключевые слова
             self.key_words_str = ''
@@ -47,6 +48,9 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
 
             # Статус парсинга uslugio
             self.parsing_avito = False
+
+            # Статус загрузки драйвера
+            self.webdriver_loaded = False
 
             # Найденные прокси сервера
             self.uslugio_proxy_finded = []
@@ -83,6 +87,7 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
         self.md['Авто_получение_прокси'] = self.inp_auto_get_proxy
         self.md['Ручное_получение_прокси'] = self.inp_manual_get_proxy
         self.md['Адрес_для_получения_прокси'] = self.inp_path_manual_proxy
+        self.md['Показать_все_логи'] = self.inp_show_all_logs
 
         temp_md = {}
         temp_md.update(self.md)

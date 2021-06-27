@@ -66,7 +66,7 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
                     if not i in m.uslugio_verified_proxies and not i in m.uslugio_used_proxies:
                         m.uslugio_verified_proxies.append(i)
                         # Посылаем сигнал на главное окно в прокси
-                        m.Commun.uslugio_proxy_update.emit(m.uslugio_verified_proxies)
+                        m.Commun.proxyUpdate.emit(m.uslugio_verified_proxies)
                         print(f"Подходящий прокси сервер найден")
 
             time.sleep(5)
@@ -116,7 +116,7 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
                         if not i in m.uslugio_verified_proxies and not i in m.uslugio_used_proxies:
                             m.uslugio_verified_proxies.append(i)
                             # Посылаем сигнал на главное окно в прокси
-                            m.Commun.uslugio_proxy_update.emit(m.uslugio_verified_proxies)
+                            m.Commun.proxyUpdate.emit(m.uslugio_verified_proxies)
                             print(f"Подходящий прокси сервер найден")
 
                     if m.uslugio_proxy_finded[-1] == i:

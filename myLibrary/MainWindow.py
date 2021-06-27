@@ -4,7 +4,7 @@ from myLibrary.My_pyqt5 import Avito_ui_parsing
 from myLibrary.InitialData import InitialData
 from myLibrary.UslugioLibrary.ParsingThreading import UslugioThreading
 from myLibrary.UslugioLibrary.FindProxy import UslugioFindProxyThreading
-from myLibrary import Loger, Ecxel, RequestTime
+from myLibrary import Loger, Ecxel, RequestTime, TesseractImg, DriverChrome
 import re
 import os
 import win32com.client
@@ -22,16 +22,15 @@ except ImportError:
 
 
 class Communicate(QObject):
-    uslugio_change = QtCore.pyqtSignal(object)
-    avito_change = QtCore.pyqtSignal(object)
-    uslugio_yandex_change = QtCore.pyqtSignal(object)
-    uslugio_progressBar = QtCore.pyqtSignal(object)
-    uslugio_proxy_update = QtCore.pyqtSignal(object)
-    uslugio_change_key_words = QtCore.pyqtSignal(object)
+    progressBar = QtCore.pyqtSignal(object)
+    proxyUpdate = QtCore.pyqtSignal(object)
+    change_key_words = QtCore.pyqtSignal(object)
+    change_textBrowser_console = QtCore.pyqtSignal(object)
+    pushButton_uslugio_stop_enabled = QtCore.pyqtSignal(object)
 
 
 class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.OutLogger, Loger.OutputLogger, InitialData,
-                 RequestTime.RequestTime):
+                 RequestTime.RequestTime, TesseractImg.TesseractImg):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -58,42 +57,48 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         self.checkBox_uslugio_show_brawser.setChecked(self.inp_show_browser)
         # Дерриктория файла excel uslugio
         if os.path.isfile(self.inp_path_excel_uslugio):
-            self.pushButton_uslugio_file.setText(f"Файл Excel: {self.inp_path_excel_uslugio}")
+            self.pushButton_file_excel_path.setText(f"Файл Excel: {self.inp_path_excel_uslugio}")
             # Кнопка открытия файла Excel
-            self.pushButton_uslugio_file_open.setText(f"Отк. {self.inp_name_excel_avito}")
+            self.pushButton_file_excel_open.setText(f"Отк. {self.inp_name_excel_avito}")
         # Продолжить файл excel uslugio
-        self.checkBox_uslugio_continuation.setChecked(self.inp_continuation_uslugio)
+        self.checkBox_continuation.setChecked(self.inp_continuation_uslugio)
         # Начать занова запись в excel uslugio
-        self.checkBox_uslugio_rewriting.setChecked(self.inp_rewriting_uslugio)
+        self.checkBox_rewriting.setChecked(self.inp_rewriting_uslugio)
         # Данные вручную указываем откуда брать
         self.checkBox_uslugio_auto_input.setChecked(self.inp_auto_get_proxy)
         # Сайт указанный вручную для получения прокси
         self.checkBox_uslugio_manual_input.setChecked(self.inp_manual_get_proxy)
+        # Показать все логи
+        self.checkBox_show_all_logs.setChecked(self.inp_show_all_logs)
         # Ссылки на бесплатные прокси сервера
-        self.textBrowser_console.append('Ccылки на бесплатные прокси сервера:\n'
-                                        'https://awmproxy.com/freeproxy.php\n'
-                                        'https://advanced.name/ru/freeproxy')
+        # self.textBrowser_console.append('Ccылки на бесплатные прокси сервера:\n'
+        #                                 'https://awmproxy.com/freeproxy.php\n'
+        #                                 'https://advanced.name/ru/freeproxy')
 
     def set_connect(self):
         # СТАРТ парсинга
-        self.pushButton_uslugio_start.clicked.connect(self.start_uslugio_thread)
+        self.pushButton_start.clicked.connect(self.start_main_threading)
         # СТОП парсинг
-        self.pushButton_uslugio_stop.clicked.connect(self.avito_stop_threading)
+        self.pushButton_stop.clicked.connect(self.stop_main_threading)
         # Выбыр файла Excel uslugio
-        self.pushButton_uslugio_file.clicked.connect(self.uslugio_select_file)
+        self.pushButton_file_excel_path.clicked.connect(self.set_path_file_excel)
         # Продолжить запись uslugio
-        self.checkBox_uslugio_continuation.clicked.connect(self.check_box_uslugio_continuation)
+        self.checkBox_continuation.clicked.connect(self.check_box_continuation)
         # Перезаписать файл uslugio
-        self.checkBox_uslugio_rewriting.clicked.connect(self.check_box_uslugio_rewriting)
+        self.checkBox_rewriting.clicked.connect(self.check_box_rewriting)
         # Кнопка открытия Excel файла uslugio
-        self.pushButton_uslugio_file_open.clicked.connect(self.file_open_uslugio)
+        self.pushButton_file_excel_open.clicked.connect(self.file_excel_open)
 
         # Обновляем прогрес бар
-        self.Commun.uslugio_progressBar.connect(self.uslugio_progressBar)
+        self.Commun.progressBar.connect(self.progressBar)
         # Обновляем прокси сервера
-        self.Commun.uslugio_proxy_update.connect(self.uslugio_proxy_update)
+        self.Commun.proxyUpdate.connect(self.proxyUpdate)
         # Обновляем textBrowser_uslugio_key_words
-        self.Commun.uslugio_change_key_words.connect(self.set_key_words)
+        self.Commun.change_key_words.connect(self.set_key_words)
+        # Обновляем change_textBrowser_console (консоль логов)
+        self.Commun.change_textBrowser_console.connect(self.set_textBrowser_console)
+        # Активируем или деактивируем кнопку pushButton_start
+        self.Commun.pushButton_uslugio_stop_enabled.connect(self.set_enabled_pushButton_uslugio_stop)
 
         # Вывод сообщений в консоль
         self.OUTPUT_LOGGER_STDOUT.emit_write.connect(self.append_log)
@@ -120,6 +125,9 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         # Сайт указанный вручную для получения прокси
         self.checkBox_uslugio_manual_input.clicked.connect(self.set_check_manual_input)
 
+        # Показать все логи
+        self.checkBox_show_all_logs.clicked.connect(self.set_check_show_all_logs)
+
     def set_event_filter(self):
 
         # EventFilter на виджет ключевые слова
@@ -145,10 +153,13 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         self.log = True
         self.uslugio_find_proxy_threading.start()
 
-    def start_uslugio_thread(self):
+    def start_main_threading(self):
 
         if not os.path.isfile(self.inp_path_excel_uslugio):
-            print(f"$Выберите файл Excel для записи!")
+            print(f"$<b style='color: rgb(255, 0, 0);'>Выберите файл Excel для записи!</b>")
+            return
+
+        if not self.find_tesseract():
             return
 
         if self.inp_manual_get_proxy:
@@ -182,37 +193,57 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
 
         self.log = True
         self.uslugio_threading.start()
-        self.pushButton_uslugio_stop.setEnabled(True)
-        self.pushButton_uslugio_start.setEnabled(False)
+        self.pushButton_start.setEnabled(False)
 
-    def avito_stop_threading(self):
+    def stop_main_threading(self):
 
         threading.Thread(target=self.uslugio_threading.stop_threading).start()
 
-        self.pushButton_uslugio_stop.setEnabled(False)
-        self.pushButton_uslugio_start.setEnabled(False)
+        self.pushButton_stop.setEnabled(False)
+        self.pushButton_start.setEnabled(False)
 
     def append_log(self, text, severity):
         if len(text) > 3:
             if severity == self.Severity.ERROR:
                 # self.textBrowser_console.append(text)
-                if self.parsing_avito:
+                if self.inp_show_all_logs:
                     self.textBrowser_console.append(text)
                     self.update_json()
+                    return
                 if re.search(r'^[$](.*)', text):
                     self.textBrowser_console.append(text)
+                    return
             else:
                 # self.textBrowser_console.append(text)
-                if self.parsing_avito:
-                    self.textBrowser_console.append(text)
+                if self.inp_show_all_logs:
+                    self.textBrowser_console.append(re.sub(r'[$]', '', text))
+                    return
                 if re.search(r'^[$](.*)', text):
                     self.textBrowser_console.append(re.findall(r'^[$](.*)', text)[0])
+                    return
+
+    def set_textBrowser_console(self, data):
+        if data[1] > 0:
+            cursor = self.textBrowser_console.textCursor()
+            cursor.movePosition(QtGui.QTextCursor.End)
+            cursor.select(QtGui.QTextCursor.LineUnderCursor)
+            cursor.removeSelectedText()
+            cursor.insertText(data[0])
+        else:
+            # f"$<b style='color: rgb(0, 0, 0);'>data[0]</b>"
+            self.textBrowser_console.append(f"<b style='color: rgb(0, 0, 0);'>{data[0]}</b>")
 
     def closeEvent(self, event):
+        self.uslugio_threading: DriverChrome.StartDriver
+
         self.update_json()
         self.parsing_avito = False
         if self.uslugio_threading is not None:
-            self.uslugio_threading.stop_threading()
+            try:
+                self.uslugio_threading.kill_geckodriver()
+            except Exception as error:
+                return
+        self.close()
 
     def set_city(self, val):
         self.inp_city = val
@@ -256,52 +287,54 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         # print(self.inp_key_words)
         # print(self.inp_proxy)
 
-    def uslugio_progressBar(self, data):
+    def progressBar(self, data):
         percent = (100 / (data['items'] / (data['i'] + 1)))
         self.progressBar_uslugio.setValue(int(percent))
 
-    def uslugio_proxy_update(self, data):
+    def proxyUpdate(self, data):
         self.inp_proxy = data
         self.proxy_str = ''
         for i in data:
             self.proxy_str += f"{i}\n"
         self.textEdit_uslugio_proxy.setText(self.proxy_str)
 
-    def uslugio_select_file(self):
+    def set_path_file_excel(self):
         directory = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption="Выберите файл: Excel", directory='')
         # print(directory[0])
         # открыть диалог выбора директории и установить значение переменной
         if directory[0]:  # не продолжать выполнение, если пользователь не выбрал директорию
-            self.pushButton_uslugio_file.setText(f"Файл Excel: {directory[0]}")
+            self.pushButton_file_excel_path.setText(f"Файл Excel: {directory[0]}")
             self.inp_path_excel_uslugio = directory[0]
             self.inp_name_excel_avito = re.sub(r'.*[/]+', '', directory[0])
             # Кнопка открытия файла Excel
-            self.pushButton_uslugio_file_open.setText(f"Отк. {self.inp_name_excel_avito}")
+            self.pushButton_file_excel_open.setText(f"Отк. {self.inp_name_excel_avito}")
             self.update_json()
 
-    def check_box_uslugio_continuation(self):
-        if self.checkBox_uslugio_continuation.isChecked():
+    def check_box_continuation(self):
+        print(100)
+        if self.checkBox_continuation.isChecked():
             self.inp_continuation_uslugio = True
             self.inp_rewriting_uslugio = False
-            self.checkBox_uslugio_rewriting.setChecked(False)
+            self.checkBox_rewriting.setChecked(False)
         else:
             self.inp_continuation_uslugio = False
             self.inp_rewriting_uslugio = True
-            self.checkBox_uslugio_rewriting.setChecked(True)
+            self.checkBox_rewriting.setChecked(True)
         self.update_json()
 
-    def check_box_uslugio_rewriting(self):
-        if self.checkBox_uslugio_rewriting.isChecked():
+    def check_box_rewriting(self):
+        print(100)
+        if self.checkBox_rewriting.isChecked():
             self.inp_continuation_uslugio = False
             self.inp_rewriting_uslugio = True
-            self.checkBox_uslugio_continuation.setChecked(False)
+            self.checkBox_continuation.setChecked(False)
         else:
             self.inp_continuation_uslugio = True
             self.inp_rewriting_uslugio = False
-            self.checkBox_uslugio_continuation.setChecked(True)
+            self.checkBox_continuation.setChecked(True)
         self.update_json()
 
-    def file_open_uslugio(self):
+    def file_excel_open(self):
         if self.uslugio_threading is not None:
             # Запись в EXcel
             self.write_to_excel()
@@ -342,3 +375,11 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
             self.inp_manual_get_proxy = False
             self.checkBox_uslugio_auto_input.setChecked(True)
         self.update_json()
+
+    def set_check_show_all_logs(self):
+        self.inp_show_all_logs = self.checkBox_show_all_logs.isChecked()
+        self.update_json()
+
+    def set_enabled_pushButton_uslugio_stop(self, data):
+        self.pushButton_stop.setEnabled(data)
+        self.webdriver_loaded = data

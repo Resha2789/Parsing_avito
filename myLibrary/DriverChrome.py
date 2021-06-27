@@ -154,7 +154,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
 
                     m.uslugio_used_proxies.append(m.uslugio_verified_proxies[0])
                     m.uslugio_verified_proxies = m.uslugio_verified_proxies[1:]
-                    m.Commun.uslugio_proxy_update.emit(m.uslugio_verified_proxies)
+                    m.Commun.proxyUpdate.emit(m.uslugio_verified_proxies)
             else:
                 ssl_addr = m.uslugio_verified_proxies[0].split(':')[0]
                 ssl_port = int(m.uslugio_verified_proxies[0].split(':')[1])

@@ -64,7 +64,8 @@ class RequestTime():
                 print(f"$Пробный период закончился!")
                 return False
         else:
-            print(f"$Нету доступа в ИНТЕРНЕТ!")
+            print(f"$<b style='color: rgb(255, 0, 0);'>Нету доступа в ИНТЕРНЕТ!</b>")
+
 
 def test():
     url_time_date = 'https://advanced.name/ru/freeproxy?type=https&page=1'
@@ -77,6 +78,7 @@ def test():
     encoding = html_encoding or http_encoding
     soup = BeautifulSoup(resp.content, 'lxml', from_encoding=encoding)
     print(soup)
+
 
 if __name__ == '__main__':
     test()

@@ -27,7 +27,7 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
                 break
 
             # Посылаем сигнал на главное окно в textBrowser_uslugio_key_words
-            m.Commun.uslugio_change_key_words.emit(i)
+            m.Commun.change_key_words.emit(i)
 
             self.key_word = i
             self.url = f"https://www.avito.ru/{self.slugify(m.inp_city)}/predlozheniya_uslug?q={i}"
@@ -44,10 +44,10 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
             self.start_parsing_avito()
 
             # Посылаем сигнал на главное окно в прогресс бар avito
-            m.Commun.uslugio_progressBar.emit({'i': 0, 'items': 100})
+            m.Commun.progressBar.emit({'i': 0, 'items': 100})
 
         if m.parsing_avito:
-            m.avito_stop_threading()
+            m.stop_main_threading()
 
         self.working = False
 
@@ -59,6 +59,11 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
         m.parsing_avito = False
         save = False
         total = 0
+        dots = 1
+
+        # Активируем кнопку остановки
+        if m.webdriver_loaded:
+            m.Commun.pushButton_uslugio_stop_enabled.emit(False)
 
         while True:
             if not self.working:
@@ -77,11 +82,16 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
                 break
 
             total += 10
-            # Посылаем сигнал на главное окно в прогресс бар uslugio
-            m.Commun.uslugio_progressBar.emit({'i': total, 'items': 100})
-            time.sleep(2)
-            print(f"$Ждите, идет процесс завершения программы.")
 
+
+            if dots > 5:
+                dots = 1
+
+            m.Commun.change_textBrowser_console.emit([f"Ждите, идет процесс завершения программы" + "." * dots, dots])
+            dots += 1
+            # Посылаем сигнал на главное окно в прогресс бар uslugio
+            m.Commun.progressBar.emit({'i': total, 'items': 100})
+            time.sleep(2)
 
         m.log = True
 
@@ -92,6 +102,6 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
             print(f"$Данные не сохранились!")
 
         # Посылаем сигнал на главное окно в прогресс бар uslugio
-        m.Commun.uslugio_progressBar.emit({'i': 99, 'items': 100})
-        m.pushButton_uslugio_start.setEnabled(True)
+        m.Commun.progressBar.emit({'i': 99, 'items': 100})
+        m.pushButton_start.setEnabled(True)
         m.uslugio_threading = None
