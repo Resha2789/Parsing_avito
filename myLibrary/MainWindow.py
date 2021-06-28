@@ -70,10 +70,11 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         self.checkBox_uslugio_manual_input.setChecked(self.inp_manual_get_proxy)
         # Показать все логи
         self.checkBox_show_all_logs.setChecked(self.inp_show_all_logs)
-        # Ссылки на бесплатные прокси сервера
-        # self.textBrowser_console.append('Ccылки на бесплатные прокси сервера:\n'
-        #                                 'https://awmproxy.com/freeproxy.php\n'
-        #                                 'https://advanced.name/ru/freeproxy')
+        # Подсказка что перед использованием программы нужно установить tesseract-ocr
+        self.textBrowser_console.append("Привет!"
+                                        "<br>Для использовании данной программы нужно установить: <b style='color: rgb(0, 0, 255);'>tesseract-ocr</b>"
+                                        "<br>Установочный файл лежит в папке: <b style='color: rgb(0, 0, 255);'>Все для сборщика данных/tesseract-ocr-setup-3.02.02.exe</b>"
+                                        )
 
     def set_connect(self):
         # СТАРТ парсинга
@@ -172,8 +173,8 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
                 print(f"$В файле не найдены прокси сервера!")
                 return
 
-        if not self.check_time():
-            return
+        # if not self.check_time():
+        #     return
 
         self.parsing_avito = True
         # self.start_uslugio_find_proxy()

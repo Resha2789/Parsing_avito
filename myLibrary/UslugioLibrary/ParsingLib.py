@@ -41,6 +41,15 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
                 # Последняя страница
                 self.last_page = self.execute_js(rt=True, t=2, exit_loop=True, data='last_page()')
+                # Если last_page вернет False то обнавляем страницу
+                if type(self.last_page) == bool:
+                    print(f"$<b style='color: rgb(255, 0, 0);'>Последняя страница не найдена</b>")
+                    self.last_page = 1
+
+                if self.last_page < self.current_page:
+                    self.current_page = self.last_page - 1
+                    return self.up_date()
+
                 print(f'Последняя страница {self.last_page}')
 
                 print('Все заголовки и url предлогаемых услуг')
@@ -58,7 +67,7 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                     # Количество попыток
                     for retry in range(0, 5):
                         if retry >= 4:
-                            self.up_date()
+                            return self.up_date()
 
                         # Завершаем если парсинг остановлен
                         if not m.parsing_avito:
@@ -155,7 +164,8 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                                   f"{m.out_key_word[-1]}"
                                   f"</b>")
                             # Посылаем сигнал на главное окно в прогресс бар uslugio
-                            m.Commun.progressBar.emit({'i': self.total_found + i, 'items': total})
+                            m.Commun.progressBar.emit({'i': i, 'items': total_in_page})
+                            print(f"Найдено {i + 1} из {total_in_page}")
                             # Активируем кнопку остановки
                             if not m.webdriver_loaded:
                                 m.Commun.pushButton_uslugio_stop_enabled.emit(True)
@@ -165,7 +175,8 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
                 if self.current_page == self.last_page:
                     # Посылаем сигнал на главное окно в прогресс бар uslugio
-                    m.Commun.progressBar.emit({'i': (self.total_found + total_in_page) - 1, 'items': total})
+                    m.Commun.progressBar.emit({'i': total_in_page - 1, 'items': total_in_page})
+                    print(f"Найдено {total_in_page} из {total_in_page}")
                     self.current_page = 1
                     self.total_found = 0
                     return
@@ -180,17 +191,18 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                     print(f"$<b style='color: rgb(16, 28, 255);'>Переход на следующию страницу {self.current_page}</b>")
                     result = self.execute_js(rt=True, t=2, exit_loop=True, data=f"next_page({self.current_page})")
                     if not result:
-                        self.up_date()
+                        return self.up_date()
                     time.sleep(15)
 
                     print('Устанавливаем на страницу скрипты')
                     # Устанавливаем на страницу скрипты
                     if not self.set_library():
-                        self.up_date()
+                        return self.up_date()
 
                     self.total_found += total_in_page
                     # Посылаем сигнал на главное окно в прогресс бар uslugio
-                    m.Commun.progressBar.emit({'i': self.total_found, 'items': total})
+                    m.Commun.progressBar.emit({'i': total_in_page - 1, 'items': total_in_page})
+                    print(f"Найдено {total_in_page} из {total_in_page}")
 
 
         except Exception as detail:

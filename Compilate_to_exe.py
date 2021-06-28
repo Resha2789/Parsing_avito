@@ -19,6 +19,7 @@ def install(sistem=64, name='Сборщик_телефонов_64bit'):
         "Main.py",
         "--noconsole",
         "--onefile",
+        "--hidden-import=winapps",
         f"--icon=D:\Programming\Python\Parsing_avito\\""Все для сборщика данных\icon_phone.ico",
         f"--distpath=D:\Фриланс\Авито\Валерий\\{folder}\\",
         f"-n={name}"

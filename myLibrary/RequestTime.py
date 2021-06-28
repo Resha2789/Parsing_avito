@@ -53,12 +53,13 @@ class RequestTime():
 
     def check_time(self):
         if self.get_network_time():
-            expiration_date = datetime.strptime('30 Июнь 2021 23:00', '%d %B %Y %H:%M')
+            expiration_date = datetime.strptime('5 Июль 2021 00:00', '%d %B %Y %H:%M')
             # print(self.date_time)
             # print(expiration_date)
 
             if self.date_time < expiration_date:
-                print(f"$<b style='color: rgb(255, 0, 0);'>До окончания пробного периода: {expiration_date - self.date_time}</b>")
+                dt = expiration_date - self.date_time
+                print(f"$<b style='color: rgb(255, 0, 0);'>До окончания пробного периода: {dt} дней.</b>")
                 return True
             else:
                 print(f"$Пробный период закончился!")
