@@ -56,7 +56,7 @@ class InitialData(InputOutput.IntPut, InputOutput.OutPut):
             self.uslugio_proxy_finded = []
 
             # Проверенные прокси для uslugio
-            self.uslugio_verified_proxies = []
+            self.verified_proxies = []
 
             # Использованные прокси uslugio
             self.uslugio_used_proxies = []

@@ -87,7 +87,7 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
             if dots > 5:
                 dots = 1
 
-            m.Commun.change_textBrowser_console.emit([f"<br>Ждите, идет процесс завершения программы" + "." * dots, dots])
+            m.Commun.change_textBrowser_console.emit([f"Ждите, идет процесс завершения программы" + "." * dots, dots])
             dots += 1
             # Посылаем сигнал на главное окно в прогресс бар uslugio
             m.Commun.progressBar.emit({'i': total, 'items': 100})

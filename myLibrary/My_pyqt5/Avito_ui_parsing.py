@@ -71,7 +71,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.setSpacing(5)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.frame_8 = QtWidgets.QFrame(self.frame_5)
-        self.frame_8.setEnabled(False)
+        self.frame_8.setEnabled(True)
         self.frame_8.setFrameShape(QtWidgets.QFrame.Box)
         self.frame_8.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_8.setObjectName("frame_8")

@@ -34,7 +34,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
         except Exception as error:
             return
 
-    def star_driver(self, url=None, proxy=True):
+    def star_driver(self, url=None, proxy=False):
         m: MainWindow.MainWindow
         m = self.mainWindow
 
@@ -56,9 +56,11 @@ class StartDriver(ProxyCheck.ProxyCheck):
                                                 service_log_path=os.path.devnull)
                 print(f"DRIVER START {self.set_url}")
             else:
-                self.set_proxy(proxy=False, change=False)
+                self.set_proxy(proxy=proxy, change=False)
                 self.driver.refresh()
                 print(f"DRIVER REFRESH {self.set_url}")
+
+            self.driver.maximize_window()
             self.driver.get(url)
 
             print("Заргузка страницы успешна прошла.")
@@ -116,7 +118,7 @@ class StartDriver(ProxyCheck.ProxyCheck):
 
         profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override",
-                               "Mozilla / 5.0 (Windows NT 10.0; Win64; x64) AppleWebKit / 537.36 (KHTML, как Gecko) Chrome / 80.0.3987.163 Safari / 537.36 OPR / 67.0.3575.137")
+                               "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.25")
 
         # # Disable CSS
         # profile.set_preference('permissions.default.stylesheet', 2)
@@ -141,23 +143,23 @@ class StartDriver(ProxyCheck.ProxyCheck):
         m = self.mainWindow
 
         if proxy:
-            if change or len(m.uslugio_verified_proxies) == 0:
-                while len(m.uslugio_verified_proxies) == 0:
+            if change or len(m.verified_proxies) == 0:
+                while len(m.verified_proxies) == 0:
                     if not m.parsing_avito:
                         return
                     print(f"Ждем прокси...")
                     time.sleep(2)
                 else:
-                    print(f"Работаем через прокси: {m.uslugio_verified_proxies[0]}")
-                    ssl_addr = m.uslugio_verified_proxies[0].split(':')[0]
-                    ssl_port = int(m.uslugio_verified_proxies[0].split(':')[1])
+                    print(f"Работаем через прокси: {m.verified_proxies[0]}")
+                    ssl_addr = m.verified_proxies[0].split(':')[0]
+                    ssl_port = int(m.verified_proxies[0].split(':')[1])
 
-                    m.uslugio_used_proxies.append(m.uslugio_verified_proxies[0])
-                    m.uslugio_verified_proxies = m.uslugio_verified_proxies[1:]
-                    m.Commun.proxyUpdate.emit(m.uslugio_verified_proxies)
+                    m.uslugio_used_proxies.append(m.verified_proxies[0])
+                    m.verified_proxies = m.verified_proxies[1:]
+                    m.Commun.proxyUpdate.emit(m.verified_proxies)
             else:
-                ssl_addr = m.uslugio_verified_proxies[0].split(':')[0]
-                ssl_port = int(m.uslugio_verified_proxies[0].split(':')[1])
+                ssl_addr = m.verified_proxies[0].split(':')[0]
+                ssl_port = int(m.verified_proxies[0].split(':')[1])
 
         self.driver.execute("SET_CONTEXT", {"context": "chrome"})
 

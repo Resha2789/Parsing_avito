@@ -3,7 +3,7 @@ from PyQt5.QtCore import QObject
 from myLibrary.My_pyqt5 import Avito_ui_parsing
 from myLibrary.InitialData import InitialData
 from myLibrary.UslugioLibrary.ParsingThreading import UslugioThreading
-from myLibrary.UslugioLibrary.FindProxy import UslugioFindProxyThreading
+from myLibrary.UslugioLibrary.FindProxy import FindProxyThreading
 from myLibrary import Loger, Ecxel, RequestTime, TesseractImg, DriverChrome
 import re
 import os
@@ -74,6 +74,9 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         self.textBrowser_console.append("Привет!"
                                         "<br>Для использовании данной программы нужно установить: <b style='color: rgb(0, 0, 255);'>tesseract-ocr</b>"
                                         "<br>Установочный файл лежит в папке: <b style='color: rgb(0, 0, 255);'>Все для сборщика данных/tesseract-ocr-setup-3.02.02.exe</b>"
+                                        "<br>Ccылки на бесплатные прокси сервера:"
+                                        "<br><b style='font: 75 14pt Arial'>https://awmproxy.com/freeproxy.php</b>"
+                                        "<br><b style='font: 75 14pt Arial'>https://advanced.name/ru/freeproxy</b>"
                                         )
 
     def set_connect(self):
@@ -146,7 +149,7 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         pass
         # Запускаем дополнительный поток Uslugio.com
         if self.uslugio_find_proxy_threading is None:
-            self.uslugio_find_proxy_threading = UslugioFindProxyThreading(mainWindow=self,
+            self.uslugio_find_proxy_threading = FindProxyThreading(mainWindow=self,
                                                                           url='https://advanced.name/ru/freeproxy?type=https&page=1',
                                                                           browser=False,
                                                                           js='Все для сборщика данных/javaScript/ProxyJsLibrary.js')
@@ -177,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         #     return
 
         self.parsing_avito = True
-        # self.start_uslugio_find_proxy()
+        self.start_uslugio_find_proxy()
 
         if self.inp_continuation_uslugio:
             excel = Ecxel.ExcelWrite(mainWindow=self)
@@ -232,7 +235,7 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
             cursor.insertText(data[0])
         else:
             # f"$<b style='color: rgb(0, 0, 0);'>data[0]</b>"
-            self.textBrowser_console.append(f"<b style='color: rgb(0, 0, 0);'>{data[0]}</b>")
+            self.textBrowser_console.append(f"<br><b style='color: rgb(0, 0, 0);'>{data[0]}</b>")
 
     def closeEvent(self, event):
         self.uslugio_threading: DriverChrome.StartDriver
@@ -274,11 +277,11 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
     def set_proxy(self):
         data = re.split(r'[,]+\s*|\n', self.textEdit_uslugio_proxy.toPlainText())
         self.inp_proxy = []
-        self.uslugio_verified_proxies = []
+        self.verified_proxies = []
         for i in data:
             if len(i) > 1:
                 self.inp_proxy.append(i)
-                self.uslugio_verified_proxies.append(i)
+                self.verified_proxies.append(i)
 
     def set_show_browser(self):
         if self.checkBox_uslugio_show_brawser.isChecked():

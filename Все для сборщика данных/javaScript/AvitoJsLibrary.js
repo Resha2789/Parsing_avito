@@ -5,12 +5,13 @@ function count_all_items(){
     if (el.length == 0) {
         return false;
     }
-
-    return Number(el.text())
+    var str = el.text();
+    var text = str.replace(/[^0-9]/g, "");
+    return Number(text)
 }
 
 function count_items_in_page(){
-    var el = $("[data-marker='item']");
+    var el = $("[data-marker='catalog-serp']").find("[data-marker='item']");
     if (el.length == 0) {
         return false;
     }
@@ -19,7 +20,7 @@ function count_items_in_page(){
 }
 
 function get_title_and_url_items(){
-    var el = $("[data-marker='item']");
+    var el = $("[data-marker='catalog-serp']").find("[data-marker='item']");
     if (el.length == 0) {
         return false;
     }
@@ -28,7 +29,7 @@ function get_title_and_url_items(){
     var url = [];
 
     for (var i = 0; i < el.length; i++) {
-        if ($("[data-marker='item']").eq(i).find("span:contains('Показать телефон')").length > 0){
+        if (el.eq(i).find("span:contains('Показать телефон')").length > 0){
             titles.push(el.eq(i).find("[itemprop='name']").text());
             url.push('https://www.avito.ru/' + el.eq(i).find("[itemprop='url']").eq(1).attr("href"));
         }
@@ -66,15 +67,13 @@ function click_phone() {
 
     return true;
 }
-function set_id_for_phone() {
-    var el = $("[src^='data:image/png;base64']").eq(2);
+function get_phone_number_base64() {
+    var el = $("[data-marker='phone-popup/phone-image']");
     if (el.length == 0) {
         return false;
     }
-    el.attr('id', 'phone_number');
 
-
-    return true;
+    return el.attr("src");
 }
 
 function name(){
@@ -105,11 +104,23 @@ function last_page(){
 function next_page(page){
     var el = $("[data-marker='page("+ page +")']");
     if (el.length == 0) {
-        return false;
+        if (page != 1){
+            return next_page(page-1);
+        }
+        else{
+            return false;
+        }
     }
-
     el.click();
-
     return true;
 }
 
+function firewall_title(){
+    var el_h1 = $("h1:contains('Доступ с Вашего IP')");
+    var el_h2 = $("h2:contains('Доступ с Вашего IP')");
+    if (el_h1.length == 0 && el_h2.length == 0) {
+        return false;
+    }
+
+    return true;
+}

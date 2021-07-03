@@ -91,6 +91,7 @@ class ExcelWrite:
 
             row = 1
             m.out_service = []
+            m.out_url = []
             m.out_avito_all_data = []
             for i in data:
                 # m.out_avito_all_data.append([m.out_full_name[-1], m.out_service[-1], m.out_phone_number[-1], m.out_key_word[-1],  m.out_city[-1]])
@@ -98,7 +99,7 @@ class ExcelWrite:
                     break
 
                 m.out_service.append(i[1])
-                m.out_service.append(i[5])
+                m.out_url.append(i[5])
                 m.out_avito_all_data.append([i[0], i[1], i[2], i[3], i[4], i[5]])
 
             print(f"Данные загрузились {m.inp_name_excel_avito}: {rows} строк")

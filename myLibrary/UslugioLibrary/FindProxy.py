@@ -12,9 +12,9 @@ import time
 locale.setlocale(locale.LC_ALL, '')
 
 
-class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
+class FindProxyThreading(QThread, DriverChrome.Execute):
     def __init__(self, mainWindow=None, *args, **kwargs):
-        super(UslugioFindProxyThreading, self).__init__(mainWindow=mainWindow, *args, **kwargs)
+        super(FindProxyThreading, self).__init__(mainWindow=mainWindow, *args, **kwargs)
         self.mainWindow = mainWindow
         m: MainWindow.MainWindow
         m = self.mainWindow
@@ -62,11 +62,11 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
                 if not m.parsing_avito:
                     return
 
-                if self.proxy_check('https://uslugio.com/', i):
-                    if not i in m.uslugio_verified_proxies and not i in m.uslugio_used_proxies:
-                        m.uslugio_verified_proxies.append(i)
+                if self.proxy_check('https://www.avito.ru', i):
+                    if not i in m.verified_proxies and not i in m.uslugio_used_proxies:
+                        m.verified_proxies.append(i)
                         # Посылаем сигнал на главное окно в прокси
-                        m.Commun.proxyUpdate.emit(m.uslugio_verified_proxies)
+                        m.Commun.proxyUpdate.emit(m.verified_proxies)
                         print(f"Подходящий прокси сервер найден")
 
             time.sleep(5)
@@ -110,13 +110,13 @@ class UslugioFindProxyThreading(QThread, DriverChrome.Execute):
 
                     # if self.time_out_proxy is None or datetime.now() > self.time_out_proxy:
                     #     self.time_out_proxy = datetime.now() + timedelta(minutes=40)
-                    #     m.uslugio_verified_proxies, m.uslugio_used_proxies = [], []
+                    #     m.verified_proxies, m.uslugio_used_proxies = [], []
 
                     if self.proxy_check('https://uslugio.com/', i):
-                        if not i in m.uslugio_verified_proxies and not i in m.uslugio_used_proxies:
-                            m.uslugio_verified_proxies.append(i)
+                        if not i in m.verified_proxies and not i in m.uslugio_used_proxies:
+                            m.verified_proxies.append(i)
                             # Посылаем сигнал на главное окно в прокси
-                            m.Commun.proxyUpdate.emit(m.uslugio_verified_proxies)
+                            m.Commun.proxyUpdate.emit(m.verified_proxies)
                             print(f"Подходящий прокси сервер найден")
 
                     if m.uslugio_proxy_finded[-1] == i:
