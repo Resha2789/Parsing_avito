@@ -3,6 +3,8 @@ import pytesseract
 import os
 import re
 import winapps
+import traceback
+import sys
 # import requests
 from urllib import request
 
@@ -10,43 +12,65 @@ from urllib import request
 class TesseractImg:
     def __init__(self):
         self.path_tesseract = None
+        self.path_phone_img = None
+        self.width = None
+        self.height = None
+
+    def tesseract_img_init(self):
+        self.path_tesseract = None
+        self.path_phone_img = os.path.abspath("Все для сборщика данных/Телефон.png")
         self.width = 1500
         self.height = 300
+        self.find_tesseract()
+        print(self.path_tesseract)
 
-    def image_to_string(self, phone_number, retry=0):
+    def image_to_string(self, phone_number):
+
         try:
-            if not self.find_tesseract():
+            if self.path_tesseract is None:
                 return False
 
-            response = request.urlopen(phone_number)
-            with open('D:\Programming\Python\Parsing_avito\Все для сборщика данных\Телефон.png', 'wb') as f:
-                f.write(response.file.read())
+            for i in range(0, 10):
 
-            # img = Image.open(os.path.abspath("Все для сборщика данных/Телефон.png"))
-            img = Image.open(r"D:\Programming\Python\Parsing_avito\Все для сборщика данных\Телефон.png")
+                response = request.urlopen(phone_number)
+                with open(self.path_phone_img, 'wb') as f:
+                    f.write(response.file.read())
 
-            if retry > 0:
-                self.width -= 50
-                self.height -= 10
-            else:
-                self.width = 1500
-                self.height = 300
+                # img = Image.open(os.path.abspath("Все для сборщика данных/Телефон.png"))
+                img = Image.open(self.path_phone_img)
 
-            resized = img.resize((self.width, self.height))
-            resized.save(r"D:\Programming\Python\Parsing_avito\Все для сборщика данных\Телефон.png")
+                self.width = self.width - 50
+                self.height = self.height - 10
 
-            img = Image.open(r"D:\Programming\Python\Parsing_avito\Все для сборщика данных\Телефон.png")
-            # r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
-            pytesseract.pytesseract.tesseract_cmd = self.path_tesseract
-            custom_config = r'--oem 3 --psm 13 -c tessedit_char_whitelist=0123456789'
-            data = pytesseract.image_to_string(img, config=custom_config)
-            data = re.sub(r'\s+|[-]+', '', data)
-            data = re.sub(r'[ОоOo]+', '0', data)
-            data = int(re.sub(r'[^0-9]+', '', data))
-            print(f"Номер телефона: {data} колл. цифр: {len(str(data))}")
-            return data
+                if self.width < 1000:
+                    self.width = 1500
+                    self.height = 300
+
+                resized = img.resize((self.width, self.height))
+                resized.save(self.path_phone_img)
+
+                img = Image.open(self.path_phone_img)
+                # r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
+                pytesseract.pytesseract.tesseract_cmd = self.path_tesseract
+                custom_config = r'--oem 3 --psm 13 -c tessedit_char_whitelist=0123456789'
+                phone = pytesseract.image_to_string(img, config=custom_config)
+                phone = re.sub(r'\s+|[-]+', '', phone)
+                phone = re.sub(r'[ОоOo]+', '0', phone)
+                phone = int(re.sub(r'[^0-9]+', '', phone))
+
+                # Если phone < 11 то пробуем распознать снова
+                if len(str(phone)) != 11:
+                    continue
+
+                print(f"Номер телефона: {phone} колл. цифр: {len(str(phone))}")
+
+                return phone
+
+            return 0
+
         except Exception as error:
             print(f"image_to_string {error}")
+            traceback.print_exc(file=sys.stdout)
             return 0
 
     def find_tesseract(self):
@@ -54,7 +78,6 @@ class TesseractImg:
             for app in winapps.search_installed('Tesseract-OCR'):
                 test = app.uninstall_string
                 self.path_tesseract = re.sub(r'uninstall.exe', 'tesseract.exe', r"" + str(app.uninstall_string))
-                print(self.path_tesseract)
         except Exception as error:
             pass
 
@@ -63,6 +86,7 @@ class TesseractImg:
             return False
 
         return True
+
 
 def test():
     # ts = TesseractImg()
@@ -73,6 +97,7 @@ def test():
     response = request.urlopen(img_data)
     with open('D:\Programming\Python\Parsing_avito\Все для сборщика данных\Телефон.png', 'wb') as f:
         f.write(response.file.read())
+
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
     test()  # то запускаем функцию main()

@@ -26,4 +26,4 @@ def install(sistem=64, name='Сборщик_телефонов_64bit'):
     ])
 
 if __name__ == '__main__':
-    install(sistem=64, name='Сборщик_телефонов_avito')
+    install(sistem=32, name='Сборщик_телефонов_avito')

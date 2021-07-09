@@ -72,12 +72,12 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         self.checkBox_show_all_logs.setChecked(self.inp_show_all_logs)
         # Подсказка что перед использованием программы нужно установить tesseract-ocr
         self.textBrowser_console.append("Привет!"
-                                        "<br>Для использовании данной программы нужно установить: <b style='color: rgb(0, 0, 255);'>tesseract-ocr</b>"
+                                        "<br>Для использования данной программы нужно установить: <b style='color: rgb(0, 0, 255);'>tesseract-ocr</b>"
                                         "<br>Установочный файл лежит в папке: <b style='color: rgb(0, 0, 255);'>Все для сборщика данных/tesseract-ocr-setup-3.02.02.exe</b>"
-                                        "<br>Ccылки на бесплатные прокси сервера:"
-                                        "<br><b style='font: 75 14pt Arial'>https://awmproxy.com/freeproxy.php</b>"
-                                        "<br><b style='font: 75 14pt Arial'>https://advanced.name/ru/freeproxy</b>"
                                         )
+        # "<br>Ccылки на бесплатные прокси сервера:"
+        # "<br><b style='font: 75 14pt Arial'>https://awmproxy.com/freeproxy.php</b>"
+        # "<br><b style='font: 75 14pt Arial'>https://advanced.name/ru/freeproxy</b>"
 
     def set_connect(self):
         # СТАРТ парсинга
@@ -180,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
         #     return
 
         self.parsing_avito = True
-        self.start_uslugio_find_proxy()
+        # self.start_uslugio_find_proxy()
 
         if self.inp_continuation_uslugio:
             excel = Ecxel.ExcelWrite(mainWindow=self)
@@ -211,7 +211,7 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
             if severity == self.Severity.ERROR:
                 # self.textBrowser_console.append(text)
                 if self.inp_show_all_logs:
-                    self.textBrowser_console.append(text)
+                    self.textBrowser_console.append(f"<br><b style='font: 8pt Arial'>{text}</b>")
                     self.update_json()
                     return
                 if re.search(r'^[$](.*)', text):
@@ -260,7 +260,7 @@ class MainWindow(QtWidgets.QMainWindow, Avito_ui_parsing.Ui_MainWindow, Loger.Ou
             for i in data:
                 if len(i) > 1:
                     self.inp_key_words.append(i)
-            print(self.inp_key_words)
+            # print(self.inp_key_words)
 
         else:
             # Ключевые слова

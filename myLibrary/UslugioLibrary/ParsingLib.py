@@ -18,6 +18,7 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
         self.last_page = None
         self.total_found = 0
         self.reload = False
+        self.tesseract_img_init()
 
     def start_parsing_avito(self):
         m: MainWindow.MainWindow
@@ -31,14 +32,19 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
         try:
             firewall = self.execute_js(rt=True, t=2, exit_loop=True, data='firewall_title()')
-            if firewall:
-                self.set_proxy(proxy=True, change=False)
-                print(f"$<b style='color: rgb(16, 28, 255);'>Переход на следующию страницу {self.current_page}</b>")
-                u.url = f"https://www.avito.ru/{u.slugify(m.inp_city)}/predlozheniya_uslug?p={self.current_page}&q={u.key_word}"
-                self.driver.get(u.url)
-                # self.set_proxy(proxy=True, change=False)
 
-                return self.start_parsing_avito()
+            if firewall or  firewall == 'not execute':
+                self.driver.delete_all_cookies()
+                # self.set_proxy(proxy=True, change=False)
+                # print(f"$<b style='color: rgb(16, 28, 255);'>Переход на следующию страницу {self.current_page}</b>")
+                # u.url = f"https://www.avito.ru/{u.slugify(m.inp_city)}/predlozheniya_uslug?p={self.current_page}&q={u.key_word}"
+                # self.driver.get(u.url)
+                # # Устанавливаем на вебсайт скрипты
+                # if not self.set_library():
+                #     return
+                # # self.set_proxy(proxy=True, change=False)
+                # return self.start_parsing_avito()
+                return self.up_date(proxy=False)
 
             # Всего найдено
             total = self.execute_js(rt=True, t=2, exit_loop=True, data='count_all_items()')
@@ -59,33 +65,35 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                     print(f"$<b style='color: rgb(255, 0, 0);'>Последняя страница не найдена</b>")
                     self.last_page = 1
 
-                if self.last_page < self.current_page:
-                    self.current_page = self.last_page - 1
-                    return self.up_date()
-
                 print('Все заголовки и url предлогаемых услуг')
                 # Все заголовки и url предлогаемых услуг
                 result = self.execute_js(rt=True, t=2, exit_loop=True, data='get_title_and_url_items()')
-                self.services_in_page = result[0]
-                self.urls_in_page = result[1]
+                if type(result) != bool and result != 'not execute':
+                    self.services_in_page = result[0]
+                    self.urls_in_page = result[1]
+                else:
+                    self.last_page = self.current_page
+                    return
+
 
                 print(f"$<b style='color: rgb(255, 196, 17);'>По ключевому слову {u.key_word} на странице найдено: {len(self.urls_in_page)}</b>")
 
                 # Количество предлогаемых услуг на странице
-                total_in_page = len(self.services_in_page)
+                total_in_page = len(self.urls_in_page)
 
                 for i in range(0, total_in_page):
                     # Количество попыток
                     for retry in range(0, 5):
-                        if retry >= 6:
-                            return self.up_date()
-
                         # Завершаем если парсинг остановлен
                         if not m.parsing_avito:
                             return
 
+                        if retry >= 4:
+                            self.driver.delete_all_cookies()
+                            return self.up_date()
+
                         self.reload = False
-                        if self.services_in_page[i] not in m.out_service:
+                        if self.urls_in_page[i] not in m.out_url:
 
                             print('Открываем url клиента')
                             # Открываем url клиента
@@ -119,26 +127,16 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                             print('Сохранаяем картинку номера телефона')
                             # Сохранаяем картинку номера телефона
                             phone_number_base64 = self.execute_js(sl=1, rt=True, t=2, exit_loop=True, data=f"get_phone_number_base64()")
-                            if not result:
+                            if not phone_number_base64:
                                 print('back continue')
                                 continue
 
                             # Распознаем цифры с картинки
-                            phone_number = self.image_to_string(phone_number_base64, retry=retry)
+                            phone_number = self.image_to_string(phone_number_base64)
                             print(f"Кол. цифр в номере {len(str(phone_number))}")
-                            # Если phone_number < 11 то пробуем распознать снова
-                            if len(str(phone_number)) != 11:
-                                print('back continue')
-                                continue
 
-                            # Если 0 то устанавливаем прокси сервер
+                            # Если 0 то перезагружаем страницу
                             if phone_number == 0:
-                                self.set_proxy(proxy=True, change=False)
-                                return self.up_date()
-
-                            # Если False то обнавляем страницу
-                            if type(phone_number) == bool:
-                                m.parsing_avito = False
                                 return self.up_date()
 
                             # Телефоны
@@ -206,7 +204,8 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                     if not self.reload:
                         self.current_page += 1
 
-                    print(f"$<b style='color: rgb(16, 28, 255);'>Переход на следующию страницу {self.current_page}</b>")
+                    print(f"$<b style='color: rgb(16, 28, 255);'>Удаляем все куки. Переход на следующию страницу {self.current_page}</b>")
+                    self.driver.delete_all_cookies()
                     u.url = f"https://www.avito.ru/{u.slugify(m.inp_city)}/predlozheniya_uslug?p={self.current_page}&q={u.key_word}"
                     self.driver.get(u.url)
 
@@ -217,26 +216,9 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
                     if not self.set_library():
                         return self.up_date()
 
-
         except Exception as detail:
             print("ERROR start_parsing_avito", detail)
             self.up_date()
-
-    def main_page(self):
-        u: ParsingThreading.UslugioThreading
-        u = self.uslugioThreading
-
-        # Проверка находимся ли мы на главной странице
-        total = self.execute_js(rt=True, t=2, exit_loop=True, data='count_all_items()')
-        if type(total) == bool:
-            print(f"Переход на главную страницу")
-            self.driver.get(u.url)
-            time.sleep(10)
-            print('Устанавливаем на страницу скрипты')
-            # Устанавливаем на страницу скрипты
-            if not self.set_library():
-                time.sleep(5)
-                return self.main_page()
 
     def up_date(self, proxy=False):
         try:
@@ -248,6 +230,8 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
 
             print('UP_DATE')
             self.reload = True
+            self.driver.delete_all_cookies()
+            time.sleep(20)
 
             if not m.parsing_avito:
                 return
@@ -255,6 +239,9 @@ class ParsingUslugio(DriverChrome.Execute, TesseractImg.TesseractImg):
             # Запус WebDriver
             if not self.star_driver(url=u.url, proxy=proxy):
                 return
+
+            time.sleep(40)
+
             # Устанавливаем на вебсайт скрипты
             if not self.set_library():
                 return

@@ -26,6 +26,8 @@ class UslugioThreading(QThread, ParsingUslugio, Slug.Slugify):
             if self.stop_parsing or not m.parsing_avito:
                 break
 
+            print(f"$<b style='color: rgb(16, 28, 255);'>Парсим по ключевому слову: {i}</b>")
+
             # Посылаем сигнал на главное окно в textBrowser_uslugio_key_words
             m.Commun.change_key_words.emit(i)
 

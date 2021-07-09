@@ -104,7 +104,7 @@ function last_page(){
 function next_page(page){
     var el = $("[data-marker='page("+ page +")']");
     if (el.length == 0) {
-        if (page != 1){
+        if (page > 1){
             return next_page(page-1);
         }
         else{
